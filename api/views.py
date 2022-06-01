@@ -5,7 +5,7 @@ from todos.models import Todo
 from todos.serializers import TodoSerializer
 
 
-class TodoList(generics.ListCreateAPIView):
+class TodoListCreate(generics.ListCreateAPIView):
     serializer_class = TodoSerializer
     permission_classes = [IsAuthenticated]
 
@@ -20,6 +20,14 @@ class TodoList(generics.ListCreateAPIView):
 
 
 class TodoDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Todo.objects.all()
     permission_classes = [IsAuthenticated]
     serializer_class = TodoSerializer
+
+    def get_queryset(self):
+
+        user = self.request.user
+        queryset = Todo.objects.all()
+        if user is not None:
+            queryset = queryset.filter(owner=user.id)
+
+        return queryset
